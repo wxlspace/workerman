@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>用户登录</title>
+    <link rel="stylesheet" href="./bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./assets/style.css" />
+    <script src="./assets/jquery.3.6.4.min.js"></script>
+    <script src="./bootstrap/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+	<div class="container">
+		<div class="login-box">
+      <!-- <div class="form-group">
+        <label for="uid">账号</label>
+        <input type="text" class="form-control" id="uid">
+      </div> -->
+      <div class="form-group">
+        <label for="uid">昵称</label>
+        <input type="text" class="form-control" id="nickname">
+      </div>
+      <button type="submit" class="btn btn-primary" onclick="return loginForm()">开始聊天吧 ！</button>
+    </div>
+		
+	</div>
+
+    <script>
+      localStorage.removeItem('user')
+      function loginForm(){
+        if($('#nickname').val() == ''){
+          alert('请输入昵称')
+          $('#nickname').focus()
+          return false
+        }
+        var uid = Math.floor(Math.random()*9000 + 1000)
+        localStorage.setItem('user',JSON.stringify({uid:uid,nickname:$('#nickname').val()}))
+        window.location.href = './chat.html'
+      }
+
+      
+    </script>
+  </body>
+</html>

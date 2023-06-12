@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>在线聊天——WebSocket</title>
+    <link rel="stylesheet" href="./bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./assets/style.css" />
+    <script src="./assets/jquery.3.6.4.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="broadcast">这里是系统广播内容</div>
+      <div class="main-box">
+        <div class="main-left">
+          <li class="active">
+            <div class="user-icon-name">
+              <img src="./assets/avatar.png" /> <span>张三</span>
+            </div>
+            <div class="unread-msg-count">1</div>
+          </li>
+          <li>
+            <div class="user-icon-name">
+              <img src="./assets/user.png" /> <span>李四</span>
+            </div>
+            <div class="unread-msg-count">1</div>
+          </li>
+          <li>
+            <div class="user-icon-name">
+              <img src="./assets/avatar.png" /> <span>群组一</span>
+            </div>
+            <div class="unread-msg-count">1</div>
+          </li>
+          <li>
+            <div class="user-icon-name">
+              <img src="./assets/user.png" /> <span>群组二</span>
+            </div>
+            <div class="unread-msg-count">1</div>
+          </li>
+        </div>
+        <div class="main-right">
+          <div class="main-title">当前在线：10 人</div>
+          <div class="main-body"></div>
+          <div class="send-box">
+            <!-- <select class="form-control" id="to_user">
+            <option value="">所有人</option>
+            <option value="zs">张三</option>
+            <option value="ls">李四</option>
+          </select> -->
+            <input
+              type="text"
+              class="form-control"
+              id="content"
+              placeholder="请输入内容..."
+            />
+            <button
+              class="btn btn-primary btn-send"
+              type="submit"
+              onclick="sendContent()"
+            >
+              发送
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var user = localStorage.getItem("user");
+      if (!user) {
+        alert("请先登录！");
+        window.location.href = "./index.html";
+      }
+      user = JSON.parse(user);
+
+      // 检测是否断网
+      // console.log(navigator.onLine);
+      var ws = null;
+      var wsServer = "ws://127.0.0.1:5678";
+      var heartbeat_timer = null; // 心跳定时器
+
+      initWebSocket();
+
+      function initWebSocket() {
+        if ("WebSocket" in window) {
+          ws = new WebSocket(wsServer);
+        } else if ("MozWebSocket" in window) {
+          ws = new MozWebSocket(wsServer);
+        } else {
+          console.log("您的浏览器不支持 WebSocket!");
+          return;
+        }
+        ws.onopen = onOpen;
+        ws.onmessage = onMessage;
+        ws.onclose = onClose;
+        ws.onopen = onOpen;
+      }
+
+      function onOpen() {
+        ws.send(JSON.stringify({ type: "init", uid: user.uid }));
+        startHeartBeat();
+        console.log("已连接到服务器");
+      }
+
+      function onMessage(e) {
+        var data = JSON.parse(e.data);
+        var type = data.type;
+        switch (type) {
+          case "broadcast":
+            $(".broadcast").html(data.online_user);
+            $(".main-title").html(data.total_people);
+            break;
+          case "push":
+            console.log("push", data.data.content);
+            break;
+          case "heartbeat":
+            console.log("heartbeat", data.content);
+            break;
+          case "chat":
+            var user = localStorage.getItem("user");
+            user = JSON.parse(user);
+            var append_html = "";
+            if (user.uid == data.data.uid) {
+              append_html = `<li class='my-send-content'>${data.data.content}【用户${data.data.uid}】</li>`;
+            } else {
+              append_html = `<li>【用户${data.data.uid}】${data.data.content}</li>`;
+            }
+            $(".main-body").append(append_html);
+            $("#content").val("");
+            break;
+        }
+      }
+
+      function onClose() {
+        console.log("服务器已经断开");
+        clearInterval(heartbeat_timer);
+        heartbeat_timer = null
+        // reconnect(wsServer);
+        setTimeout(function(){initWebSocket()},5000)
+        
+      }
+
+      function startHeartBeat() {
+        heartbeat_timer = setInterval(function () {
+          ws.send(JSON.stringify({ type: "heartbeat" }));
+        }, 5000);
+      }
+
+      function sendContent() {
+        // if(!isOnlineCurrUser()){
+        //   alert('您掉线了，正在尝试重连...')
+        //   return false;
+        // }
+        var content = $("#content").val();
+        ws.send(
+          JSON.stringify({ type: "chat", uid: user.uid, content: content })
+        );
+      }
+
+      /**
+       * 判断当前用户是否 还在线
+       */
+      function isOnlineCurrUser() {
+        if (ws.readyState == WebSocket.OPEN) {
+          console.log("open", ws.readyState);
+          return true;
+        } else {
+          console.log("close", ws.readyState);
+          return false;
+        }
+      }
+
+      // function wsStatus() {
+      //   if (ws.readyState == 0) {
+      //     return "未连接";
+      //   } else if (ws.readyState == 1) {
+      //     return "已连接";
+      //   } else if (ws.readyState == 2) {
+      //     return "连接正在关闭";
+      //   } else if (ws.readyState == 3) {
+      //     return "连接已关闭";
+      //   }
+      // }
+    </script>
+  </body>
+</html>

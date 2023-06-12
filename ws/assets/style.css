@@ -1,0 +1,20 @@
+html,body{ height: 100%;}
+ul,li{ list-style: none;}
+.login-box{ width: 300px; margin: 100px auto;}
+.container{height: calc(100% ); padding: 10px 0;  width: 80%; max-width: 1200px; min-width: 700px; margin: 0 auto;}
+.broadcast{ height: 40px;}
+.main-box{ height: calc(100% - 40px);  display: flex; justify-content: space-between;border: #e5e5e5 solid 1px;}
+.main-left{ width: 250px; height: 100%; background-color: #d9d9d9; border: #f1eded solid 1px;}
+.main-right{ width: calc(100% - 250px); height: 100%; border: #f1eded solid 1px;}
+.main-left li{ height: 70px;padding: 10px; display: flex; align-items: center; justify-content: space-between;}
+.main-left li .user-icon-name{ height: 50px; display: flex; align-items: center;}
+.main-left li .user-icon-name img{ height: 100%; margin-right: 15px; border-radius: 50%;border: #f1eded solid 1px;}
+.unread-msg-count{ color: #fff; width: 20px; height: 20px; line-height: 20px; border-radius: 50%; background-color: red; text-align: center; font-size: 12px;}
+.main-left li.active{ background-color:#f1eded ;}
+.main-left li:hover{ background-color:#f1eded ;}
+.main-title{ height: 50px;background-color:#fbf9f9 ; padding: 15px; display: flex; align-items: center;}
+.main-body{ height: calc(100% - 55px - 50px - 15px);padding: 15px;}
+.my-send-content{ text-align: right;}
+.send-box{ padding: 15px; display: flex; justify-content: space-between; border-top: #f1eded solid 1px;;}
+#to_user {width: 200px; margin-right: 10px;}
+.btn-send{ width: 150px; margin-left: 10px;}
